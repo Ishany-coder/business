@@ -8,7 +8,6 @@ This project turns on a GPIO port at a scheduled **start time** (e.g., 6 AM) and
 
 - ✅ Custom start & end time
 - ✅ Runs as a Java service
-- ✅ Uses Pi4J to control Raspberry Pi GPIO
 - ✅ Reliable hardware automation
 
 ## ⚙️ Hardware Requirements
@@ -22,7 +21,6 @@ This project turns on a GPIO port at a scheduled **start time** (e.g., 6 AM) and
 ## 💻 Software Requirements
 
 - Java (OpenJDK recommended)
-- Pi4J (v1.4)
 - Raspberry Pi OS
 
 ---
@@ -31,8 +29,8 @@ This project turns on a GPIO port at a scheduled **start time** (e.g., 6 AM) and
 
 ### 🥣 On your Raspberry Pi
 
-Run the following commands to install Pi4J:
+Run the following commands to install java:
 
 ```bash
 sudo apt-get update
-sudo apt-get install libpi4j-java
+sudo apt install openjdk-17-jdk
