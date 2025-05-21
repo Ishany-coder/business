@@ -1,4 +1,5 @@
-import com.pi4j.io.gpio.*;
+import com.pi4j.context.Context;
+import com.pi4j.io.gpio.digital.*;
 import java.time.LocalTime;
 import java.util.concurrent.*;
 
@@ -6,46 +7,48 @@ public class DeviceController {
     private final String name;
     private final int startHour;
     private final int endHour;
-    private final GpioController gpio;
-    private final GpioPinDigitalOutput pin;
+    private final DigitalOutput output;
     private final ScheduledExecutorService scheduler;
 
-    public DeviceController(String name, int startHour, int endHour, Pin gpioPin) {
+    public DeviceController(String name, int startHour, int endHour, int bcmPin, Context pi4j) {
         this.name = name;
         this.startHour = startHour;
         this.endHour = endHour;
 
-        this.gpio = GpioFactory.getInstance();
-        this.pin = gpio.provisionDigitalOutputPin(gpioPin, name, PinState.LOW);
-        this.pin.setShutdownOptions(true, PinState.LOW);
+        this.output = pi4j.create(DigitalOutput.newConfigBuilder(pi4j)
+                .id(name)
+                .name(name)
+                .address(bcmPin)
+                .shutdown(DigitalState.LOW)
+                .initial(DigitalState.LOW)
+                .provider("pigpio-digital-output"));
 
         this.scheduler = Executors.newSingleThreadScheduledExecutor();
     }
 
     public void start() {
-        scheduler.scheduleAtFixedRate(this::checkAndUpdate, 0, 1, TimeUnit.MINUTES);
-        System.out.println(name + " controller started (Active from " + startHour + " to " + endHour + ").");
+        scheduler.scheduleAtFixedRate(this::checkTimeAndToggle, 0, 1, TimeUnit.MINUTES);
+        System.out.println(name + " started: " + startHour + ":00 to " + endHour + ":00 daily");
     }
 
-    private void checkAndUpdate() {
+    private void checkTimeAndToggle() {
         int currentHour = LocalTime.now().getHour();
         if (currentHour >= startHour && currentHour < endHour) {
-            if (pin.isLow()) {
+            if (output.state() == DigitalState.LOW) {
                 System.out.println("[" + name + "] ON");
-                pin.high();
+                output.high();
             }
         } else {
-            if (pin.isHigh()) {
+            if (output.state() == DigitalState.HIGH) {
                 System.out.println("[" + name + "] OFF");
-                pin.low();
+                output.low();
             }
         }
     }
 
     public void shutdown() {
-        System.out.println("Shutting down " + name + " controller.");
-        pin.low();
-        gpio.shutdown();
+        System.out.println("Shutting down " + name);
+        output.low();
         scheduler.shutdown();
     }
 }

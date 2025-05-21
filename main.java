@@ -1,20 +1,20 @@
-import com.pi4j.io.gpio.RaspiPin;
+import com.pi4j.Pi4J;
+import com.pi4j.context.Context;
 
 public class main {
     public static void main(String[] args) {
-        // Water pump: on from 6 AM to 1 PM
-        DeviceController waterController = new DeviceController("WaterPump", 6, 13, RaspiPin.GPIO_01);
+        Context pi4j = Pi4J.newAutoContext();
 
-        // Grow light: on from 7 AM to 8 PM
-        DeviceController lightController = new DeviceController("GrowLight", 7, 20, RaspiPin.GPIO_02);
+        DeviceController water = new DeviceController("WaterPump", 6, 13, 18, pi4j); // BCM 18
+        DeviceController light = new DeviceController("GrowLight", 7, 20, 17, pi4j); // BCM 17
 
-        waterController.start();
-        lightController.start();
+        water.start();
+        light.start();
 
-        // Safe shutdown on Ctrl+C or reboot
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            waterController.shutdown();
-            lightController.shutdown();
+            water.shutdown();
+            light.shutdown();
+            pi4j.shutdown();
         }));
     }
 }
