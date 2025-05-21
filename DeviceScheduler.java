@@ -19,23 +19,21 @@ public class DeviceScheduler {
 
     public void start() {
         scheduler.scheduleAtFixedRate(this::checkAndToggle, 0, 1, TimeUnit.MINUTES);
-        System.out.println(name + " started: active from " + startHour + ":00 to " + endHour + ":00");
+        System.out.println("%s started: active from %02d:00 to %02d:00n", name, startHour, endHour);
     }
 
     private void checkAndToggle() {
         try {
             int hour = LocalTime.now().getHour();
-            if (hour >= startHour && hour < endHour) {
-                if (!gpio.isOn()) {
-                    System.out.println("[" + name + "] Turning ON");
-                    gpio.turnOn();
+            boolean shouldBeOn = hour >= startHour && hour < endHour;
+            if (shouldBeOn && !gpio.isOn()) {
+                System.out.printf("[%s] Turning ON%n", name);
+                gpio.turnOn();
                 }
-            } else {
-                if (gpio.isOn()) {
-                    System.out.println("[" + name + "] Turning OFF");
-                    gpio.turnOff();
-                }
-            }
+            } else if (!shouldBeOn&& gpio.isOn()) {
+                System.out.printf("[%s] Turning OFF%n", name);
+                gpio.turnOff();
+        }
         } catch (Exception e) {
             System.err.println("[" + name + "] Error: " + e.getMessage());
         }
