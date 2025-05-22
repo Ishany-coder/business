@@ -1,7 +1,6 @@
 import java.io.IOException;
 import java.time.LocalTime;
 import java.util.concurrent.*;
-
 public class DeviceScheduler {
     private final String name;
     private final int startHour;
@@ -19,7 +18,7 @@ public class DeviceScheduler {
 
     public void start() {
         scheduler.scheduleAtFixedRate(this::checkAndToggle, 0, 1, TimeUnit.MINUTES);
-        System.out.println("%s started: active from %02d:00 to %02d:00n", name, startHour, endHour);
+        System.out.println("%s started: active from %02d:00 to %02d:00n" + name + startHour + endHour);
     }
 
     private void checkAndToggle() {
@@ -30,12 +29,13 @@ public class DeviceScheduler {
                 System.out.printf("[%s] Turning ON%n", name);
                 gpio.turnOn();
                 }
-            } else if (!shouldBeOn&& gpio.isOn()) {
+            else if (!shouldBeOn&& gpio.isOn()) {
                 System.out.printf("[%s] Turning OFF%n", name);
                 gpio.turnOff();
+            }
         }
-        } catch (Exception e) {
-            System.err.println("[" + name + "] Error: " + e.getMessage());
+        catch (IOException ex) {
+            throw new RuntimeException(ex);
         }
     }
 
@@ -43,9 +43,11 @@ public class DeviceScheduler {
         try {
             System.out.println("[" + name + "] Shutting down.");
             gpio.turnOff();
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             e.printStackTrace();
         }
         scheduler.shutdown();
     }
 }
+
