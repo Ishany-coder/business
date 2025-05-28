@@ -1,4 +1,4 @@
-package backendCode;
+package backendCode.scheduler;
 
 import java.io.IOException;
 import java.time.LocalTime;

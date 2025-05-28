@@ -1,4 +1,4 @@
-package backendCode;
+package backendCode.API;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -8,8 +8,6 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import io.github.cdimascio.dotenv.Dotenv;
-
-// Same imports...
 
 public class OpenAICall {
 
