@@ -61,19 +61,6 @@ backendCode/
 
 4. `GpioController` handles the actual GPIO pin toggling.
 
----
-
-## 📦 Example Output
-
-```
-Watering Schedule:
-Start: 8, End: 9
-Start: 17, End: 18
-
-Light Schedule:
-Start: 7, End: 12
-Start: 15, End: 19
-```
 
 ---
 
