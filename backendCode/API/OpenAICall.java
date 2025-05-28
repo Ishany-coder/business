@@ -9,6 +9,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import io.github.cdimascio.dotenv.Dotenv;
 
+// Same imports...
+
 public class OpenAICall {
 
     private final String apiKey;
@@ -24,6 +26,16 @@ public class OpenAICall {
     public List<int[]> getWateringTimes(String plantName) throws IOException {
         String prompt = "When should I water a " + plantName + " plant? Respond only in JSON with up to 3 objects named watering_times, each having start and end fields using 24-hour integers.";
 
+        return getTimeSlotsFromGPT(prompt, "watering_times");
+    }
+
+    public List<int[]> getLightTimes(String plantName) throws IOException {
+        String prompt = "When should I provide light to a " + plantName + " plant? Respond only in JSON with up to 3 objects named light_times, each having start and end fields using 24-hour integers.";
+
+        return getTimeSlotsFromGPT(prompt, "light_times");
+    }
+
+    private List<int[]> getTimeSlotsFromGPT(String prompt, String key) throws IOException {
         JSONObject requestJson = new JSONObject();
         requestJson.put("model", "gpt-3.5-turbo");
 
@@ -62,16 +74,16 @@ public class OpenAICall {
                 .getString("content");
 
         JSONObject jsonContent = new JSONObject(content);
-        JSONArray times = jsonContent.getJSONArray("watering_times");
+        JSONArray times = jsonContent.getJSONArray(key);
 
-        List<int[]> wateringSlots = new ArrayList<>();
+        List<int[]> timeSlots = new ArrayList<>();
         for (int i = 0; i < times.length(); i++) {
             JSONObject slot = times.getJSONObject(i);
             int start = slot.getInt("start");
             int end = slot.getInt("end");
-            wateringSlots.add(new int[]{start, end});
+            timeSlots.add(new int[]{start, end});
         }
 
-        return wateringSlots;
+        return timeSlots;
     }
 }
