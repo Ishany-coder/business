@@ -5,7 +5,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import org.json.*;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import io.github.cdimascio.dotenv.Dotenv;
 
 public class OpenAICall {
