@@ -1,24 +1,23 @@
 plugins {
     id 'java'
-    id 'application'
 }
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
-}
+group = 'com.yourdomain.project'
+version = '1.0-SNAPSHOT'
 
-application {
-    mainClass = 'your.package.Main' // replace with actual main class
-}
+sourceCompatibility = '17'
+targetCompatibility = '17'
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    implementation 'org.json:json:20230227'
+    // org.json - for JSONObject and JSONArray
+    implementation 'org.json:json:20231013'
+
+    // dotenv - to load environment variables from .env files
     implementation 'io.github.cdimascio:dotenv-java:2.3.2'
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.0'
+
+    testImplementation 'junit:junit:4.13.2'
 }
