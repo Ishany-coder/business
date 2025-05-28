@@ -24,14 +24,13 @@ public class OpenAICall {
     }
 
     public List<int[]> getWateringTimes(String plantName) throws IOException {
-        String prompt = "When should I water a " + plantName + " plant? Respond only in JSON with up to 3 objects named watering_times, each having start and end fields using 24-hour integers.";
+        String prompt = "When should I water a " + plantName + " plant? Respond only in JSON with up to 3 objects named watering_times, each having start and end fields using 24-hour integers. Example: { \"watering_times\": [ { \"start\": 8, \"end\": 9 }, { \"start\": 17, \"end\": 18 } ] }";
 
         return getTimeSlotsFromGPT(prompt, "watering_times");
     }
 
     public List<int[]> getLightTimes(String plantName) throws IOException {
-        String prompt = "When should I provide light to a " + plantName + " plant? Respond only in JSON with up to 3 objects named light_times, each having start and end fields using 24-hour integers.";
-
+        String prompt = "When should I provide light to a " + plantName + " plant? Respond only in JSON with up to 3 objects named light_times, each having start and end fields using 24-hour integers. Example: { \"light_times\": [ { \"start\": 7, \"end\": 12 }, { \"start\": 15, \"end\": 19 } ] }";
         return getTimeSlotsFromGPT(prompt, "light_times");
     }
 
