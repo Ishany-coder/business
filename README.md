@@ -55,11 +55,14 @@ backendCode/
    java Main basil
    ```
 
-2. The app queries OpenAI for optimal watering and lighting times for that plant.
+2. The app queries OpenAI for optimal watering and lighting times for that plant make sure you have an api key as shown down below in a .env file.
+   ```bash
+     OPENAI_API_KEY=your-api-key-here
+   ```
 
-3. `DeviceScheduler` schedules activation windows based on those times.
+4. `DeviceScheduler` schedules activation windows based on those times.
 
-4. `GpioController` handles the actual GPIO pin toggling.
+5. `GpioController` handles the actual GPIO pin toggling.
 
 
 ---
