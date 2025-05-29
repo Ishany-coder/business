@@ -9,6 +9,8 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import io.github.cdimascio.dotenv.Dotenv;
 
+// Same imports...
+
 public class OpenAICall {
 
     private final String apiKey;
@@ -22,14 +24,15 @@ public class OpenAICall {
     }
 
     public List<int[]> getWateringTimes(String plantName) throws IOException {
-        String prompt = "When should I water a " + plantName + " plant? Respond only in JSON with up to 3 objects named watering_times, each having start and end fields using 24-hour integers. Example: { \"watering_times\": [ { \"start\": 8, \"end\": 9 }, { \"start\": 17, \"end\": 18 } ] }";
+        String prompt = "What calendar days of the month should I water a " + plantName + " plant? Respond only in JSON with an array named watering_days that contains integers from 1 to 31. Example: { \"watering_days\": [3, 10, 17, 24] }";
 
-        return getTimeSlotsFromGPT(prompt, "watering_times");
+        return getDaysFromGPT(prompt, "watering_days");
     }
 
     public List<int[]> getLightTimes(String plantName) throws IOException {
-        String prompt = "When should I provide light to a " + plantName + " plant? Respond only in JSON with up to 3 objects named light_times, each having start and end fields using 24-hour integers. Example: { \"light_times\": [ { \"start\": 7, \"end\": 12 }, { \"start\": 15, \"end\": 19 } ] }";
-        return getTimeSlotsFromGPT(prompt, "light_times");
+        String prompt = "What calendar days of the month should I provide light to a " + plantName + " plant? Respond only in JSON with an array named light_days that contains integers from 1 to 31. Example: { \"light_days\": [1, 8, 15, 22] }";
+
+        return getDaysFromGPT(prompt, "light_days");
     }
 
     private List<int[]> getTimeSlotsFromGPT(String prompt, String key) throws IOException {
@@ -82,5 +85,54 @@ public class OpenAICall {
         }
 
         return timeSlots;
+    }
+
+    private List<int[]> getDaysFromGPT(String prompt, String key) throws IOException {
+        JSONObject requestJson = new JSONObject();
+        requestJson.put("model", "gpt-3.5-turbo");
+
+        JSONArray messages = new JSONArray();
+        JSONObject userMessage = new JSONObject();
+        userMessage.put("role", "user");
+        userMessage.put("content", prompt);
+        messages.put(userMessage);
+        requestJson.put("messages", messages);
+
+        URL url = new URL("https://api.openai.com/v1/chat/completions");
+        HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+        connection.setRequestMethod("POST");
+        connection.setRequestProperty("Authorization", "Bearer " + apiKey);
+        connection.setRequestProperty("Content-Type", "application/json");
+        connection.setDoOutput(true);
+
+        try (OutputStream os = connection.getOutputStream()) {
+            byte[] input = requestJson.toString().getBytes("utf-8");
+            os.write(input, 0, input.length);
+        }
+
+        StringBuilder response = new StringBuilder();
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(connection.getInputStream(), "utf-8"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                response.append(line.trim());
+            }
+        }
+
+        JSONObject responseJson = new JSONObject(response.toString());
+        String content = responseJson.getJSONArray("choices")
+                .getJSONObject(0)
+                .getJSONObject("message")
+                .getString("content");
+
+        JSONObject jsonContent = new JSONObject(content);
+        JSONArray days = jsonContent.getJSONArray(key);
+
+        List<int[]> result = new ArrayList<>();
+        for (int i = 0; i < days.length(); i++) {
+            result.add(new int[]{days.getInt(i)});
+        }
+
+        return result;
     }
 }

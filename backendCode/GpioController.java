@@ -1,43 +1,53 @@
 package backendCode;
 
-import java.io.*;
+import com.pi4j.Pi4J;
+import com.pi4j.context.Context;
+import com.pi4j.io.gpio.digital.*;
 
 public class GpioController {
+    private final String name;
     private final int pin;
-    private final File directionFile;
-    private final File valueFile;
+    private final Context pi4j;
+    private final DigitalOutput output;
 
-    public GpioController(int pin) throws IOException {
-        this.pin = pin;
-
-        File gpioDir = new File("/sys/class/gpio/gpio" + pin);
-        if (!gpioDir.exists()) {
-            writeToFile(new File("/sys/class/gpio/export"), String.valueOf(pin));
-        }
-
-        this.directionFile = new File("/sys/class/gpio/gpio" + pin + "/direction");
-        this.valueFile = new File("/sys/class/gpio/gpio" + pin + "/value");
-
-        writeToFile(directionFile, "out");
+    public GpioController(String name) {
+        this.name = name;
+        this.pin = resolvePin(name);  // Map device to pin
+        this.pi4j = Pi4J.newAutoContext();
+        this.output = DigitalOutput.newConfigBuilder(pi4j)
+                .id(name)
+                .name(name)
+                .address(pin)
+                .shutdown(DigitalState.LOW)
+                .initial(DigitalState.LOW)
+                .provider("pigpio-digital-output")
+                .build();
+        pi4j.create(output);
     }
 
-    public void turnOn() throws IOException {
-        writeToFile(valueFile, "1");
+    public void turnOn() {
+        output.high();
+        System.out.println(name + " turned ON");
     }
 
-    public void turnOff() throws IOException {
-        writeToFile(valueFile, "0");
+    public void turnOff() {
+        output.low();
+        System.out.println(name + " turned OFF");
     }
 
-    public boolean isOn() throws IOException {
-        try (BufferedReader reader = new BufferedReader(new FileReader(valueFile))) {
-            return "1".equals(reader.readLine().trim());
-        }
+    public boolean isOn() {
+        return output.state() == DigitalState.HIGH;
     }
 
-    private void writeToFile(File file, String value) throws IOException {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-            writer.write(value);
-        }
+    public void shutdown() {
+        if (pi4j != null) pi4j.shutdown();
+    }
+
+    private int resolvePin(String name) {
+        return switch (name) {
+            case "WaterPump" -> 17;
+            case "GrowLight" -> 18;
+            default -> throw new IllegalArgumentException("Unknown device: " + name);
+        };
     }
 }

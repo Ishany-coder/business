@@ -1,42 +1,52 @@
 package backendCode.scheduler;
 
 import java.io.IOException;
-import java.time.LocalTime;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.concurrent.*;
+
 public class DeviceScheduler {
     private final String name;
-    private final int startHour;
-    private final int endHour;
+    private final List<Integer> targetDays;
     private final GpioController gpio;
     private final ScheduledExecutorService scheduler;
 
-    public DeviceScheduler(String name, int startHour, int endHour, int pin) throws Exception {
+    public DeviceScheduler(String name, List<Integer> targetDays, int pin) throws Exception {
         this.name = name;
-        this.startHour = startHour;
-        this.endHour = endHour;
+        this.targetDays = targetDays;
         this.gpio = new GpioController(pin);
         this.scheduler = Executors.newSingleThreadScheduledExecutor();
     }
 
     public void start() {
-        scheduler.scheduleAtFixedRate(this::checkAndToggle, 0, 1, TimeUnit.MINUTES);
-        System.out.println("%s started: active from %02d:00 to %02d:00n" + name + startHour + endHour);
+        scheduler.scheduleAtFixedRate(this::checkAndToggle, 0, 1, TimeUnit.DAYS);
+        System.out.printf("[%s] Scheduler started for days: %s%n", name, targetDays);
     }
 
     private void checkAndToggle() {
         try {
-            int hour = LocalTime.now().getHour();
-            boolean shouldBeOn = hour >= startHour && hour < endHour;
+            int today = LocalDate.now().getDayOfMonth();
+            boolean shouldBeOn = targetDays.contains(today);
+
             if (shouldBeOn && !gpio.isOn()) {
-                System.out.printf("[%s] Turning ON%n", name);
+                System.out.printf("[%s] Activating on day %d%n", name, today);
                 gpio.turnOn();
-                }
-            else if (!shouldBeOn&& gpio.isOn()) {
-                System.out.printf("[%s] Turning OFF%n", name);
+            } else if (!shouldBeOn && gpio.isOn()) {
+                System.out.printf("[%s] Deactivating (not scheduled today)%n", name);
                 gpio.turnOff();
             }
-        }
-        catch (IOException ex) {
+
+            int daysUntilNext = targetDays.stream()
+                    .mapToInt(day -> (day - today + 31) % 31)
+                    .filter(diff -> diff > 0)
+                    .min()
+                    .orElse(-1);
+
+            if (daysUntilNext >= 0) {
+                System.out.printf("[%s] Next activation in %d day(s)%n", name, daysUntilNext);
+            }
+        } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
     }
@@ -45,11 +55,9 @@ public class DeviceScheduler {
         try {
             System.out.println("[" + name + "] Shutting down.");
             gpio.turnOff();
-        }
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         scheduler.shutdown();
     }
 }
-
