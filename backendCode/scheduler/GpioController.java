@@ -38,14 +38,17 @@ public class GpioController implements AutoCloseable {
     }
 
     public boolean isOn() {
+        logger.info(name + "is" + (output.state() == DigitalState.HIGH ? "ON" : "OFF"))
         return output.state() == DigitalState.HIGH;
     }
 
     public void shutdown() {
+        logger.info("Shutting down: ", name)
         if (pi4j != null) pi4j.shutdown();
     }
 
     private int resolvePin(String name) {
+        logger.info("Resolving pin for device: " + name)
         return switch (name) {
             case "WaterPump" -> 17;
             case "GrowLight" -> 18;
@@ -55,6 +58,7 @@ public class GpioController implements AutoCloseable {
 
     @Override
     public void close() {
+        logger.info("CLosing: ", name)
         shutdown();
     }
 }

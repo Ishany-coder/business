@@ -8,30 +8,33 @@ import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import io.github.cdimascio.dotenv.Dotenv;
+import java.util.logging.Logger;
 
 // Same imports...
 
 public class OpenAICall {
-
+    private static final Logger logger = Logger.getLogger(OpenAICall.class.getName());
     private final String apiKey;
 
     public OpenAICall() {
         Dotenv dotenv = Dotenv.load();
         this.apiKey = dotenv.get("OPENAI_API_KEY");
+        logger.info("GOT API KEY: ", apiKey);
         if (this.apiKey == null) {
+            logger.severe("API key not found in .env file");
             throw new IllegalStateException("API key not found in .env file");
         }
     }
 
     public List<int[]> getWateringTimes(String plantName) throws IOException {
         String prompt = "What calendar days of the month should I water a " + plantName + " plant? Respond only in JSON with an array named watering_days that contains integers from 1 to 31. Example: { \"watering_days\": [3, 10, 17, 24] }";
-
+        logger.info("Getting watering times for " + plantName);
         return getDaysFromGPT(prompt, "watering_days");
     }
 
     public List<int[]> getLightTimes(String plantName) throws IOException {
         String prompt = "What calendar days of the month should I provide light to a " + plantName + " plant? Respond only in JSON with an array named light_days that contains integers from 1 to 31. Example: { \"light_days\": [1, 8, 15, 22] }";
-
+        logger.info("Getting light times for " + plantName);
         return getDaysFromGPT(prompt, "light_days");
     }
 

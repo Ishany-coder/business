@@ -29,6 +29,7 @@ public class DeviceScheduler {
     private void checkAndToggle() {
         try {
             int today = LocalDate.now().getDayOfMonth();
+            logger.info(String.format("[%s] Checking for activation on day %d", name, today));
             boolean shouldBeOn = targetDays.contains(today);
 
             if (shouldBeOn && !gpio.isOn()) {
