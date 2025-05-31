@@ -3,8 +3,10 @@ package backendCode.scheduler;
 import com.pi4j.Pi4J;
 import com.pi4j.context.Context;
 import com.pi4j.io.gpio.digital.*;
+import java.util.logging.Logger;
 
-public class GpioController {
+public class GpioController implements AutoCloseable {
+    private static final Logger logger = Logger.getLogger(GpioController.class.getName());
     private final String name;
     private final int pin;
     private final Context pi4j;
@@ -27,12 +29,12 @@ public class GpioController {
 
     public void turnOn() {
         output.high();
-        System.out.println(name + " turned ON");
+        logger.info(name + " turned ON");
     }
 
     public void turnOff() {
         output.low();
-        System.out.println(name + " turned OFF");
+        logger.info(name + " turned OFF");
     }
 
     public boolean isOn() {
@@ -49,5 +51,10 @@ public class GpioController {
             case "GrowLight" -> 18;
             default -> throw new IllegalArgumentException("Unknown device: " + name);
         };
+    }
+
+    @Override
+    public void close() {
+        shutdown();
     }
 }

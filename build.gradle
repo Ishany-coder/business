@@ -13,6 +13,14 @@ repositories {
 }
 
 dependencies {
+    // pi4j - for GPIO control
+    implementation 'com.pi4j:pi4j-core:2.3.0'
+    implementation 'com.pi4j:pi4j-plugin-raspberrypi:2.3.0'
+
+    // OpenAI API
+    implementation 'com.squareup.okhttp3:okhttp:4.9.3'
+    implementation 'com.google.code.gson:gson:2.8.9'
+
     // org.json - for JSONObject and JSONArray
     implementation 'org.json:json:20231013'
 

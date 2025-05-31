@@ -1,6 +1,7 @@
 package backendCode.logic;
 
 import backendCode.api.OpenAICall;
+import backendCode.TimeRange;
 
 import java.io.IOException;
 import java.util.List;
@@ -12,11 +13,11 @@ public class PlantAdvisor {
         this.ai = ai;
     }
 
-    public List<int[]> getWateringSchedule(String plant) throws IOException {
+    public List<TimeRange> getWateringSchedule(String plant) throws IOException {
         return ai.getWateringTimes(plant);
     }
 
-    public List<int[]> getLightSchedule(String plant) throws IOException {
+    public List<TimeRange> getLightSchedule(String plant) throws IOException {
         return ai.getLightTimes(plant);
     }
 }

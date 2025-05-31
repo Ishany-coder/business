@@ -3,5 +3,19 @@
 
 # Ignore Gradle build output directory
 build
+
 #ignore the .env where all enviorment variables are
 .env
+
+# IntelliJ IDEA
+.idea/
+*.iml
+
+# Android local properties
+local.properties
+
+# Miscellaneous
+.DS_Store
+Thumbs.db
+#local properties
+local.properties
