@@ -68,10 +68,15 @@ public class Main {
                     getStart(lightTimes, 0),
                     getStart(lightTimes, 1),
                     getStart(lightTimes, 2));
-
+            try{
             water.start();
             light.start();
-
+            }
+            catch (Exception e) {
+                logger.severe("Failed to start device scheduler: " + e.getMessage());
+                return;
+            }
+            logger.info("Device schedulers started successfully.");
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 if (water != null) {
                     water.shutdown();
