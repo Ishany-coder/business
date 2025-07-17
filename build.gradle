@@ -28,4 +28,6 @@ dependencies {
     implementation 'io.github.cdimascio:dotenv-java:2.3.2'
 
     testImplementation 'junit:junit:4.13.2'
+    // api implementation
+    implementation 'com.sparkjava:spark-core:2.9.4'
 }
