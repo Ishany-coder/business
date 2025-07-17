@@ -15,6 +15,10 @@ public class GpioController implements AutoCloseable {
     public GpioController(String name) {
         this.name = name;
         this.pin = resolvePin(name);  // Map device to pin
+        if(pin == -1){
+            throw new Error("Pin not found for device: " + name)
+            return;
+        }
         this.pi4j = Pi4J.newAutoContext();
         this.output = DigitalOutput.newConfigBuilder(pi4j)
                 .id(name)
@@ -49,16 +53,33 @@ public class GpioController implements AutoCloseable {
 
     private int resolvePin(String name) {  
         logger.info("Resolving pin for device: " + name);
-        return switch (name) {
-            case "WaterPump" -> 17;
-            case "GrowLight" -> 18;
-            default -> throw new IllegalArgumentException("Unknown device: " + name);
+        try{
+            constants.pins.get(name);
         };
+        catch(Exception e){
+            logger.severe("Pin not found for device: " + name);
+            return -1;
+        }
     }
 
     @Override
     public void close() {
         logger.info("CLosing: ", name);
         shutdown();
+    }
+    public boolean validatePin() {
+        try {
+            logger.info("Validating pin for " + name);
+            output.high();
+            Thread.sleep(100);
+            boolean isHigh = output.state() == DigitalState.HIGH;
+            output.low();
+            boolean isLow = output.state() == DigitalState.LOW;
+            logger.info("Validation successful for " + name);
+            return isHigh && isLow;
+        } catch (Exception e) {
+            logger.severe("Validation failed for " + name + ": " + e.getMessage());
+            return false;
+        }
     }
 }

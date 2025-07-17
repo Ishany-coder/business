@@ -42,7 +42,6 @@ public class Main {
     public static void main(String[] args) {
         try {
             PlantAdvisor advisor = new PlantAdvisor(new OpenAICall());
-
             String plant = args.length > 0 ? args[0] : "tomato";
             List<TimeRange> wateringTimes = advisor.getWateringSchedule(plant);
             if (wateringTimes.isEmpty()) {

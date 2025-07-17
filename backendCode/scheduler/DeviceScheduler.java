@@ -22,6 +22,7 @@ public class DeviceScheduler {
     }
 
     public void start() {
+        gpio.validatePin(); // validate the pin for each subsys
         scheduler.scheduleAtFixedRate(this::checkAndToggle, 0, 1, TimeUnit.DAYS);
         logger.info(String.format("[%s] Scheduler started for days: %s", name, targetDays));
     }

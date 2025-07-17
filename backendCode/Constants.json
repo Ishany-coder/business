@@ -1,0 +1,6 @@
+{
+  "pins": {
+    "WaterPump": 17,
+    "Light": 18
+  }
+}
